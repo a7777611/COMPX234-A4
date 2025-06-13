@@ -17,13 +17,16 @@ class FileServerThread(threading.Thread):
             # creat a new socket to handle file transport
             sock = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
             sock.bind(('0.0.0.0', self.port))
+            print(f"New thread started for {self.filename} on port {self.port}")  # 添加日志
             # check file wether exist
             if not os.path.exists(self.filepath):
+                print(f"File not found: {self.filename}")  # 添加日志
                 sock.sendto(f"ERR {self.filename} NOT_FOUND".encode(), self.client_addr)
                 return
             
             #Send an OK response
             filesize = os.path.getsize(self.filepath)
+            print(f"Sending file info: {self.filename}, size: {filesize}")  # 添加日志
             sock.sendto(f"OK {self.filename} SIZE {filesize} PORT {self.port}".encode(), self.client_addr)
             
             #Process file block requests
@@ -43,7 +46,8 @@ class FileServerThread(threading.Thread):
                         sock.sendto(f"FILE {self.filename} CLOSE_OK".encode(), addr)
 
                         break
-
+        except Exception as e:
+            print(f"Server thread error: {e}")  # 捕获所有异常
         finally:
             sock.close()
     

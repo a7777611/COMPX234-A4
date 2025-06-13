@@ -4,14 +4,19 @@ import os
 import time
 
 def send_and_receive(sock, msg, addr, max_retries=5):
+    print(f"Sending: {msg} to {addr}")  # 添加发送日志
     for attempt in range(max_retries):
         sock.sendto(msg.encode(), addr)
         sock.settimeout(2 + attempt * 2) #Dynamic timeout
         try:
             data, _ = sock.recvfrom(2048)
+            print(f"Received: {data.decode()}")  # 添加接收日志
             return data.decode()
         except socket.timeout:
             print(f"Timeout, retrying...({attempt + 1}/{max_retries})")
+        except ConnectionResetError:
+            print("Connection was reset by server")  # 专门处理连接重置
+            time.sleep(1)  # 等待1秒再重试
     raise Exception("Max retries exceeded")
 
 def download_file(sock, server_addr, filename):
