@@ -6,11 +6,13 @@ import time
 def send_and_receive(sock, msg, addr, max_retries=5):
     print(f"Sending: {msg} to {addr}")  # 添加发送日志
     for attempt in range(max_retries):
+        #print(f"尝试 {attempt+1}/{max_retries}")
         sock.sendto(msg.encode(), addr)
         sock.settimeout(2 + attempt * 2) #Dynamic timeout
         try:
+            #print("等待服务器响应...")
             data, _ = sock.recvfrom(2048)
-            print(f"Received: {data.decode()}")  # 添加接收日志
+            #print(f"Received: {data.decode()}")  # 添加接收日志
             return data.decode()
         except socket.timeout:
             print(f"Timeout, retrying...({attempt + 1}/{max_retries})")
@@ -29,8 +31,10 @@ def download_file(sock, server_addr, filename):
     
     #Analyze OK response
     parts = response.split()
-    filesize = int(parts[4])
-    port = int(parts[6])
+    if len(parts) < 6 or parts[0] != "OK" or parts[2] != "SIZE" or parts[4] != "PORT":
+            raise ValueError("Invalid server response format")
+    filesize = int(parts[3])
+    port = int(parts[5])
     print(f"Downloading {filename} (size: {filesize} bytes)")
 
     #Connect to new port

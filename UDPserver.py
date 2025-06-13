@@ -5,12 +5,14 @@ import os
 import base64
 
 class FileServerThread(threading.Thread):
-    def __init__(self, client_addr, filename):
+    def __init__(self, client_addr, filename, server_port):
         threading.Thread.__init__(self)
         self.client_addr = client_addr
         self.filename = filename
+        self.server_port = server_port
         self.port = random.randint(50000,51000)
         self.filepath = os.path.join("Server", filename)
+        #print(f"新线程: 文件={filename}, 客户端={client_addr}, 服务端口={server_port}, 传输端口={self.port}")
 
     def run(self):
         try:
@@ -62,11 +64,15 @@ def main():
     print(f"Server running on port {port}...")
 
     while True:
+        #print("等待客户端消息...")
         data, addr = sock.recvfrom(1024)
+        #print(f"收到来自 {addr} 的消息: {data.decode()}")
         if data.decode().startswith("DOWNLOAD"):
             filename = data.decode().split()[1]
+            #print(f"开始处理 {filename} 请求")
             thread = FileServerThread(addr, filename, port)
             thread.start()
+    
         
 
 if __name__ == "__main__":
