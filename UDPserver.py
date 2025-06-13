@@ -22,11 +22,11 @@ class FileServerThread(threading.Thread):
                 sock.sendto(f"ERR {self.filename} NOT_FOUND".encode(), self.client_addr)
                 return
             
-            #发送ok响应
+            #Send an OK response
             filesize = os.path.exists(self.filepath)
             sock.sendto(f"OK {self.filename} SIZE {filesize} PORT {self.port}".encode(), self.client_addr)
             
-            #处理文件块请求
+            #Process file block requests
             with open(self.filepath, 'rb') as f:
                 while True:
                     data, addr = sock.recvfrom(1024)
