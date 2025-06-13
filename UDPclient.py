@@ -1,7 +1,7 @@
 import socket
 
 def main():
-    host = int(input("Enter server host: "))
+    host = input("Enter server host: ")
     port = int(input("Enter server port: "))
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
