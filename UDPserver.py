@@ -23,7 +23,7 @@ class FileServerThread(threading.Thread):
                 return
             
             #Send an OK response
-            filesize = os.path.exists(self.filepath)
+            filesize = os.path.getsize(self.filepath)
             sock.sendto(f"OK {self.filename} SIZE {filesize} PORT {self.port}".encode(), self.client_addr)
             
             #Process file block requests
@@ -54,7 +54,7 @@ def main():
     
     port = int(input("Enter server port: "))
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    sock.bind('0.0.0.0', port)
+    sock.bind(('0.0.0.0', port))
     print(f"Server running on port {port}...")
 
     while True:

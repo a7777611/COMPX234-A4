@@ -8,7 +8,7 @@ def send_and_receive(sock, msg, addr, max_retries=5):
         sock.sendto(msg.encode(), addr)
         sock.settimeout(2 + attempt * 2) #Dynamic timeout
         try:
-            data, _ = sock.recvform(2048)
+            data, _ = sock.recvfrom(2048)
             return data.decode()
         except socket.timeout:
             print(f"Timeout, retrying...({attempt + 1}/{max_retries})")
@@ -58,11 +58,16 @@ def download_file(sock, server_addr, filename):
 def main():
     host = input("Enter server host: ")
     port = int(input("Enter server port: "))
+    filelist = input("Enter file list: ")
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    server_addr = (host, port)
 
-    while True:
-        msg = input("Enter message: ")
-        sock.sendto(msg.encode(), (host, port))
+    with open(filelist, 'r') as f:
+        for line in f:
+            filename = line.strip()
+            if filename:  # skip blank lines
+                download_file(sock, server_addr, filename)
+
 
 if __name__ == "__main__":
     main()
